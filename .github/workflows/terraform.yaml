@@ -18,13 +18,23 @@ defaults:
     # working-directory: ./provision
 
 jobs:
+  diffs:
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.set-matrix.outputs.matrix }}
+    steps:
+    - id: set-matrix
+      run: echo "::set-output name=matrix::["aws/personal/project_a", "aws/personal/project_b"]"
+
   terraform:
     name: "Terraform"
     runs-on: ubuntu-latest
     permissions:
       pull-requests: write
     strategy:
-      matrix: { dir: ['aws/personal/project_a', 'aws/personal/project_b'] }
+      max-parallel: 2
+      matrix:
+        dir: ${{fromJson(needs.diffs.outputs.matrix)}}
 
     steps:
     - uses: actions/checkout@v3
