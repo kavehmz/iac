@@ -24,7 +24,11 @@ jobs:
       matrix: ${{ steps.set-matrix.outputs.matrix }}
     steps:
     - id: set-matrix
-      run: echo "matrix={\"dir\":[\"aws/personal/project_a\",\"aws/personal/project_b\"]}" >> $GITHUB_OUTPUT
+      run: |
+        X=""
+        for i in $(git diff  --dirstat=files,0 HEAD..main|cut -d'%' -f 2|cut -d' ' -f 2|grep aws);do X="$X,\"$i\"";done
+        X="${X:1}"
+        echo "matrix={\"dir\":[$X]}" >> $GITHUB_OUTPUT
 
   terraform:
     needs: diffs
