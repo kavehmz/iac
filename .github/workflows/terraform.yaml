@@ -41,8 +41,7 @@ jobs:
 
     - name: test
       id: test
-      working-directory: ${{ matrix.dir }}
-      run: echo ${{ matrix.dir }}
+      run: echo ${{fromJson(needs.diffs.outputs.matrix)}}
 
     - name: Terraform fmt
       id: fmt
