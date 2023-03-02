@@ -24,7 +24,7 @@ jobs:
       matrix: ${{ steps.set-matrix.outputs.matrix }}
     steps:
     - id: set-matrix
-      run: echo "matrix='{\"dir\":[\"aws/personal/project_a\",\"aws/personal/project_b\"]}'" >> $GITHUB_OUTPUT
+      run: echo "matrix={\"dir\":[\"aws/personal/project_a\",\"aws/personal/project_b\"]}" >> $GITHUB_OUTPUT
 
   terraform:
     name: "Terraform"
