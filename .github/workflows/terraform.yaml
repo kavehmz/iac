@@ -29,17 +29,8 @@ jobs:
     - id: set-matrix
       run: |
         git fetch origin main
-        echo "$GITHUB_REF"
-        git branch
-        pwd
-        ls -la
-        echo "01"
-        git diff --dirstat=files,0 ..FETCH_HEAD
-        echo "02"
-        git log main -n 1
-        echo "03"
         X=""
-        for i in $(git diff --dirstat=files,0 $GITHUB_REF..main|cut -d'%' -f 2|cut -d' ' -f 2|grep aws);do X="$X,\"$i\"";done
+        for i in $(git diff --dirstat=files,0 ..FETCH_HEAD|cut -d'%' -f 2|cut -d' ' -f 2|grep aws);do X="$X,\"$i\"";done
         X="${X:1}"
         echo "matrix={\"dir\":[$X]}" >> $GITHUB_OUTPUT
 
