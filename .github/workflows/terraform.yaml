@@ -41,7 +41,7 @@ jobs:
 
     - name: test
       id: test
-      run: echo "${{fromJson(needs.diffs.outputs.matrix)}}"
+      run: echo "test"
 
     - name: Terraform fmt
       id: fmt
