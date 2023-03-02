@@ -32,8 +32,7 @@ jobs:
     permissions:
       pull-requests: write
     strategy:
-      max-parallel: 2
-      matrix: ${{fromJson(needs.diffs.outputs.matrix)}}
+      matrix: ${{fromJSON('{"dir":["aws/personal/project_a","aws/personal/project_b"]}')}}
         # dir: ["aws/personal/project_a", "aws/personal/project_b"]
         # dir: ${{fromJson(needs.diffs.outputs.matrix)}}
 
