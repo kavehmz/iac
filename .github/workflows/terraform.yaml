@@ -34,7 +34,8 @@ jobs:
     strategy:
       max-parallel: 2
       matrix:
-        dir: ${{fromJson(needs.diffs.outputs.matrix)}}
+        dir: ["aws/personal/project_a", "aws/personal/project_b"]
+        # dir: ${{fromJson(needs.diffs.outputs.matrix)}}
 
     steps:
     - uses: actions/checkout@v3
