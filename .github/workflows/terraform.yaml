@@ -31,9 +31,9 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       pull-requests: write
-    strategy:
-      # matrix: ${{fromJSON('{"dir":["aws/personal/project_a","aws/personal/project_b"]}')}}
-      matrix: ${{fromJson(needs.diffs.outputs.matrix)}}
+    # strategy:
+    #   # matrix: ${{fromJSON('{"dir":["aws/personal/project_a","aws/personal/project_b"]}')}}
+    #   matrix: ${{fromJson(needs.diffs.outputs.matrix)}}
 
     steps:
     - uses: actions/checkout@v3
