@@ -29,6 +29,7 @@ jobs:
     - id: set-matrix
       run: |
         git fetch origin main
+        echo "$GITHUB_REF"
         git branch
         git log -n 5
         pwd
