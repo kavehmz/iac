@@ -24,7 +24,7 @@ jobs:
       matrix: ${{ steps.set-matrix.outputs.matrix }}
     steps:
     - id: set-matrix
-      run: echo "matrix={\"dir\":[\"aws/personal/project_a\", \"aws/personal/project_b\"]}" >> $GITHUB_OUTPUT
+      run: echo 'matrix={"dir":["aws/personal/project_a","aws/personal/project_b"]}' >> $GITHUB_OUTPUT
 
   terraform:
     name: "Terraform"
@@ -32,9 +32,8 @@ jobs:
     permissions:
       pull-requests: write
     strategy:
-      matrix: ${{fromJSON('{"dir":["aws/personal/project_a","aws/personal/project_b"]}')}}
-        # dir: ["aws/personal/project_a", "aws/personal/project_b"]
-        # dir: ${{fromJson(needs.diffs.outputs.matrix)}}
+      # matrix: ${{fromJSON('{"dir":["aws/personal/project_a","aws/personal/project_b"]}')}}
+      matrix: ${{fromJson(needs.diffs.outputs.matrix)}}
 
     steps:
     - uses: actions/checkout@v3
