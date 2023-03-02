@@ -33,7 +33,9 @@ jobs:
         git branch
         git log -n 5
         pwd
-        ls -la 
+        ls -la
+        git diff --dirstat=files,0 main
+        echo "Next"
         X=""
         for i in $(git diff --dirstat=files,0 $GITHUB_REF..main|cut -d'%' -f 2|cut -d' ' -f 2|grep aws);do X="$X,\"$i\"";done
         X="${X:1}"
