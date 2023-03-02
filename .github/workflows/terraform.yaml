@@ -28,6 +28,7 @@ jobs:
         fetch-depth: 0
     - id: set-matrix
       run: |
+        git fetch origin main
         pwd
         ls -la 
         X=""
