@@ -27,6 +27,7 @@ jobs:
       run: echo "matrix={\"dir\":[\"aws/personal/project_a\",\"aws/personal/project_b\"]}" >> $GITHUB_OUTPUT
 
   terraform:
+    needs: diffs
     name: "Terraform"
     runs-on: ubuntu-latest
     permissions:
@@ -41,7 +42,7 @@ jobs:
 
     - name: test
       id: test
-      run: echo "test"
+      run: echo "${{ needs.diffs.outputs.matrix }}"
 
     - name: Terraform fmt
       id: fmt
