@@ -1,0 +1,140 @@
+name: 'Terraform'
+
+on:
+  push:
+    paths:
+      - .github/workflows/*
+      - provision/*
+    branches:
+    - master
+  pull_request:
+    paths:
+      - .github/workflows/*
+      - provision/*
+
+defaults:
+  run:
+    shell: bash
+    # working-directory: ./provision
+
+jobs:
+  diffs:
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.set-matrix.outputs.matrix }}
+    steps:
+    - uses: actions/checkout@v3
+      with:
+        fetch-depth: 0
+    - id: set-matrix
+      run: |
+        git fetch origin main
+        X=""
+        for i in $(git diff --dirstat=files,0 ..FETCH_HEAD|cut -d'%' -f 2|cut -d' ' -f 2|grep aws)
+        do
+          X="$X,\"$i\""
+          cat << EOF > ${i}/backend.tf
+          terraform {
+            backend "s3" {
+              bucket = "deriv-playground-iac-states"
+              key    = "${i}"
+              region = "us-east-1"
+            }
+          }
+        EOF
+        done
+        X="${X:1}"
+        echo "matrix={\"dir\":[$X]}" >> $GITHUB_OUTPUT
+
+  terraform:
+    needs: diffs
+    name: "Terraform"
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+    strategy:
+      matrix: ${{fromJson(needs.diffs.outputs.matrix)}}
+
+    steps:
+    - uses: actions/checkout@v3
+    - uses: hashicorp/setup-terraform@v2
+
+    - name: test
+      id: test
+      run: echo "${{ needs.diffs.outputs.matrix }}"
+
+    - name: Terraform fmt
+      id: fmt
+      working-directory: ${{ matrix.dir }}
+      run: terraform fmt -check
+      continue-on-error: true
+
+    - name: Terraform Init
+      id: init
+      working-directory: ${{ matrix.dir }}
+      run: terraform init
+      env:
+        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID_READONLY }}
+        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY_READONLY }}
+
+    - name: Terraform Validate
+      id: validate
+      working-directory: ${{ matrix.dir }}
+      run: terraform validate -no-color
+
+    - name: Terraform Plan
+      id: plan
+      working-directory: ${{ matrix.dir }}
+      run: terraform plan -no-color
+      continue-on-error: true
+      env:
+        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID_READONLY }}
+        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY_READONLY }}
+
+    - name: Terraform Apply
+      id: apply
+      working-directory: ${{ matrix.dir }}
+      if: github.ref == 'refs/heads/master' && github.event_name == 'push'
+      run: terraform apply -auto-approve
+      continue-on-error: true
+      env:
+        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+
+    - uses: actions/github-script@v6
+      if: github.event_name == 'pull_request'
+      env:
+        PLAN: "terraform\n${{ steps.plan.outputs.stdout }}"
+      with:
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+        script: |
+          const output = `### Dir: ${{ matrix.dir }}
+          #### Terraform Format and Style 🖌\`${{ steps.fmt.outcome }}\`
+          #### Terraform Initialization ⚙️\`${{ steps.init.outcome }}\`
+          #### Terraform Validation 🤖\`${{ steps.validate.outcome }}\`
+          <details><summary>Validation Output</summary>
+
+          \`\`\`\n
+          ${{ steps.validate.outputs.stdout }}
+          \`\`\`
+
+          </details>
+
+          #### Terraform Plan 📖\`${{ steps.plan.outcome }}\`
+
+          <details><summary>Show Plan</summary>
+
+          \`\`\`\n
+          ${process.env.PLAN}
+          \`\`\`
+
+          </details>
+
+          *Pusher: @${{ github.actor }}, Action: \`${{ github.event_name }}\`, Working Directory: \`${{ env.tf_actions_working_dir }}\`, Workflow: \`${{ github.workflow }}\`*`;
+
+          github.rest.issues.createComment({
+            issue_number: context.issue.number,
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            body: output
+          })
