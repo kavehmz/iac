@@ -6,7 +6,7 @@ on:
       - .github/workflows/*
       - provision/*
     branches:
-    - master
+    - main
   pull_request:
     paths:
       - .github/workflows/*
@@ -94,7 +94,7 @@ jobs:
     - name: Terraform Apply
       id: apply
       working-directory: ${{ matrix.dir }}
-      if: github.ref == 'refs/heads/master' && github.event_name == 'push'
+      if: github.ref == 'refs/heads/main' && github.event_name == 'push'
       run: terraform apply -auto-approve
       continue-on-error: true
       env:
