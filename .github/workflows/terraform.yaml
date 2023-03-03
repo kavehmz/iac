@@ -4,12 +4,10 @@ on:
   pull_request_review:
     types: [submitted]
     paths:
-      - .github/workflows/*
-      - aws/*
+      - aws/**
   pull_request:
     paths:
-      - .github/workflows/*
-      - aws/*
+      - aws/**
 
 defaults:
   run:
