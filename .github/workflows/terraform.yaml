@@ -90,7 +90,7 @@ jobs:
       if: github.event.review.state == 'approved' 
       id: apply
       working-directory: ${{ matrix.dir }}
-      run: terraform apply -auto-approve
+      run: terraform apply  -no-color -auto-approve
       continue-on-error: true
       env:
         AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
