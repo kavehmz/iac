@@ -100,6 +100,7 @@ jobs:
       if: github.event_name == 'pull_request'
       env:
         PLAN: "terraform\n${{ steps.plan.outputs.stdout }}"
+        APPLY: "terraform\n${{ steps.apply.outputs.stdout }}"
       with:
         github-token: ${{ secrets.GITHUB_TOKEN }}
         script: |
@@ -121,6 +122,16 @@ jobs:
 
           \`\`\`\n
           ${process.env.PLAN}
+          \`\`\`
+
+          </details>
+
+          #### Terraform Apply 📖\`${{ steps.apply.outcome }}\`
+
+          <details><summary>Show Apply</summary>
+
+          \`\`\`\n
+          ${process.env.APPLY}
           \`\`\`
 
           </details>
