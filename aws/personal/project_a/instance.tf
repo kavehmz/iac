@@ -1,8 +1,7 @@
-resource "aws_instance" "app_server" {
-  ami           = "ami-830c94e3"
-  instance_type = "t2.micro"
+resource "aws_ebs_volume" "example" {
+  size = 8
 
   tags = {
-    Name = "project a"
+    Name = "HelloWorld 01"
   }
 }
