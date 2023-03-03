@@ -1,26 +1,17 @@
 name: 'Terraform'
 
 on:
-  push:
-    paths:
-      - .github/workflows/*
-      - aws/*
-    branches:
-    - main
   pull_request_review:
     types: [submitted]
     paths:
-      - .github/workflows/*
       - aws/*
   pull_request:
     paths:
-      - .github/workflows/*
       - aws/*
 
 defaults:
   run:
     shell: bash
-    # working-directory: ./provision
 
 jobs:
   diffs:
@@ -52,9 +43,8 @@ jobs:
         echo "matrix={\"dir\":[$X]}" >> $GITHUB_OUTPUT
 
   terraform:
-    if: github.event.review.state != 'approved' 
     needs: diffs
-    name: "Terraform"
+    name: "Terraform Plan without Approval"
     runs-on: ubuntu-latest
     permissions:
       pull-requests: write
@@ -85,6 +75,7 @@ jobs:
       run: terraform validate -no-color
 
     - name: Terraform Plan
+      if: github.event.review.state != 'approved' 
       id: plan
       working-directory: ${{ matrix.dir }}
       run: terraform plan -no-color
@@ -94,6 +85,7 @@ jobs:
         AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY_READONLY }}
 
     - name: Terraform Apply
+      if: github.event.review.state == 'approved' 
       id: apply
       working-directory: ${{ matrix.dir }}
       run: terraform apply -auto-approve
@@ -139,72 +131,3 @@ jobs:
             repo: context.repo.repo,
             body: output
           })
-
-  apply:
-      if: github.event.review.state == 'approved' 
-      needs: diffs
-      name: "Terraform"
-      runs-on: ubuntu-latest
-      permissions:
-        pull-requests: write
-      strategy:
-        matrix: ${{fromJson(needs.diffs.outputs.matrix)}}
-
-      steps:
-      - uses: actions/checkout@v3
-      - uses: hashicorp/setup-terraform@v2
-
-      - name: Terraform Init
-        id: init
-        working-directory: ${{ matrix.dir }}
-        run: terraform init
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID_READONLY }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY_READONLY }}
-
-      - name: Terraform Apply
-        id: apply
-        working-directory: ${{ matrix.dir }}
-        run: terraform apply -auto-approve
-        continue-on-error: true
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-
-      - uses: actions/github-script@v6
-        if: github.event_name == 'pull_request'
-        env:
-          PLAN: "terraform\n${{ steps.plan.outputs.stdout }}"
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          script: |
-            const output = `### Dir: ${{ matrix.dir }}
-            #### Terraform Format and Style 🖌\`${{ steps.fmt.outcome }}\`
-            #### Terraform Initialization ⚙️\`${{ steps.init.outcome }}\`
-            #### Terraform Validation 🤖\`${{ steps.validate.outcome }}\`
-            <details><summary>Validation Output</summary>
-
-            \`\`\`\n
-            ${{ steps.validate.outputs.stdout }}
-            \`\`\`
-
-            </details>
-
-            #### Terraform Plan 📖\`${{ steps.plan.outcome }}\`
-
-            <details><summary>Show Plan</summary>
-
-            \`\`\`\n
-            ${process.env.PLAN}
-            \`\`\`
-
-            </details>
-
-            *Pusher: @${{ github.actor }}, Action: \`${{ github.event_name }}\`, Working Directory: \`${{ env.tf_actions_working_dir }}\`, Workflow: \`${{ github.workflow }}\`*`;
-
-            github.rest.issues.createComment({
-              issue_number: context.issue.number,
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              body: output
-            })
