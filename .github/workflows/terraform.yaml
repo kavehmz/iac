@@ -41,7 +41,7 @@ jobs:
               region = "us-east-1"
             }
           }
-          EOF
+        EOF
         done
         X="${X:1}"
         echo "matrix={\"dir\":[$X]}" >> $GITHUB_OUTPUT
