@@ -30,7 +30,10 @@ jobs:
       run: |
         git fetch origin main
         X=""
-        for i in $(git diff --dirstat=files,0 ..FETCH_HEAD|cut -d'%' -f 2|cut -d' ' -f 2|grep aws);do X="$X,\"$i\"";done
+        for i in $(git diff --dirstat=files,0 ..FETCH_HEAD|cut -d'%' -f 2|cut -d' ' -f 2|grep aws)
+        do
+          X="$X,\"$i\""
+        done
         X="${X:1}"
         echo "matrix={\"dir\":[$X]}" >> $GITHUB_OUTPUT
 
