@@ -140,71 +140,71 @@ jobs:
             body: output
           })
 
-apply:
-    if: github.event.review.state -= 'approved' 
-    needs: diffs
-    name: "Terraform"
-    runs-on: ubuntu-latest
-    permissions:
-      pull-requests: write
-    strategy:
-      matrix: ${{fromJson(needs.diffs.outputs.matrix)}}
+  apply:
+      if: github.event.review.state -= 'approved' 
+      needs: diffs
+      name: "Terraform"
+      runs-on: ubuntu-latest
+      permissions:
+        pull-requests: write
+      strategy:
+        matrix: ${{fromJson(needs.diffs.outputs.matrix)}}
 
-    steps:
-    - uses: actions/checkout@v3
-    - uses: hashicorp/setup-terraform@v2
+      steps:
+      - uses: actions/checkout@v3
+      - uses: hashicorp/setup-terraform@v2
 
-    - name: Terraform Init
-      id: init
-      working-directory: ${{ matrix.dir }}
-      run: terraform init
-      env:
-        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID_READONLY }}
-        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY_READONLY }}
+      - name: Terraform Init
+        id: init
+        working-directory: ${{ matrix.dir }}
+        run: terraform init
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID_READONLY }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY_READONLY }}
 
-    - name: Terraform Apply
-      id: apply
-      working-directory: ${{ matrix.dir }}
-      run: terraform apply -auto-approve
-      continue-on-error: true
-      env:
-        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      - name: Terraform Apply
+        id: apply
+        working-directory: ${{ matrix.dir }}
+        run: terraform apply -auto-approve
+        continue-on-error: true
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
 
-    - uses: actions/github-script@v6
-      if: github.event_name == 'pull_request'
-      env:
-        PLAN: "terraform\n${{ steps.plan.outputs.stdout }}"
-      with:
-        github-token: ${{ secrets.GITHUB_TOKEN }}
-        script: |
-          const output = `### Dir: ${{ matrix.dir }}
-          #### Terraform Format and Style 🖌\`${{ steps.fmt.outcome }}\`
-          #### Terraform Initialization ⚙️\`${{ steps.init.outcome }}\`
-          #### Terraform Validation 🤖\`${{ steps.validate.outcome }}\`
-          <details><summary>Validation Output</summary>
+      - uses: actions/github-script@v6
+        if: github.event_name == 'pull_request'
+        env:
+          PLAN: "terraform\n${{ steps.plan.outputs.stdout }}"
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const output = `### Dir: ${{ matrix.dir }}
+            #### Terraform Format and Style 🖌\`${{ steps.fmt.outcome }}\`
+            #### Terraform Initialization ⚙️\`${{ steps.init.outcome }}\`
+            #### Terraform Validation 🤖\`${{ steps.validate.outcome }}\`
+            <details><summary>Validation Output</summary>
 
-          \`\`\`\n
-          ${{ steps.validate.outputs.stdout }}
-          \`\`\`
+            \`\`\`\n
+            ${{ steps.validate.outputs.stdout }}
+            \`\`\`
 
-          </details>
+            </details>
 
-          #### Terraform Plan 📖\`${{ steps.plan.outcome }}\`
+            #### Terraform Plan 📖\`${{ steps.plan.outcome }}\`
 
-          <details><summary>Show Plan</summary>
+            <details><summary>Show Plan</summary>
 
-          \`\`\`\n
-          ${process.env.PLAN}
-          \`\`\`
+            \`\`\`\n
+            ${process.env.PLAN}
+            \`\`\`
 
-          </details>
+            </details>
 
-          *Pusher: @${{ github.actor }}, Action: \`${{ github.event_name }}\`, Working Directory: \`${{ env.tf_actions_working_dir }}\`, Workflow: \`${{ github.workflow }}\`*`;
+            *Pusher: @${{ github.actor }}, Action: \`${{ github.event_name }}\`, Working Directory: \`${{ env.tf_actions_working_dir }}\`, Workflow: \`${{ github.workflow }}\`*`;
 
-          github.rest.issues.createComment({
-            issue_number: context.issue.number,
-            owner: context.repo.owner,
-            repo: context.repo.repo,
-            body: output
-          })
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: output
+            })
