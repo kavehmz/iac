@@ -141,7 +141,7 @@ jobs:
           })
 
   apply:
-      if: github.event.review.state -= 'approved' 
+      if: github.event.review.state == 'approved' 
       needs: diffs
       name: "Terraform"
       runs-on: ubuntu-latest
