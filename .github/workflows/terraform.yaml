@@ -33,7 +33,7 @@ jobs:
         for i in $(git diff --dirstat=files,0 ..FETCH_HEAD|cut -d'%' -f 2|cut -d' ' -f 2|grep aws)
         do
           X="$X,\"$i\""
-          cat << EOF
+          cat << EOF > ${i}/backend.tf
           terraform {
             backend "s3" {
               bucket = "deriv-playground-iac-states"
@@ -41,7 +41,7 @@ jobs:
               region = "us-east-1"
             }
           }
-          EOF >> ${i}/backend.tf
+          EOF
         done
         X="${X:1}"
         echo "matrix={\"dir\":[$X]}" >> $GITHUB_OUTPUT
