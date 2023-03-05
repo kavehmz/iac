@@ -17,8 +17,9 @@ on:
     paths:
       - aws/**
 
-runs:
+terraform-init:
   using: "composite"
+  runs-on: ubuntu-latest
   steps:
     - name: Terraform fmt
       id: fmt
