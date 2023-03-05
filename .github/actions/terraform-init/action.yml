@@ -23,16 +23,16 @@ terraform-init:
   steps:
   - name: Terraform fmt
     id: fmt
-    working-directory: ${{ inputs.working-dir }}
-    run: terraform fmt -check -diff -no-color
+    working-directory: ${{ github.event.working-dir }}
+    rung: terraform fmt -check -diff -no-color
     continue-on-error: true
 
   - name: Terraform Init
     id: init
-    working-directory: ${{ inputs.working-dir }}
+    working-directory: ${{ github.event.working-dir }}
     run: terraform init
 
   - name: Terraform Validate
     id: validate
-    working-directory: ${{ inputs.working-dir }}
+    working-directory: ${{ github.event.working-dir }}
     run: terraform validate -no-color
