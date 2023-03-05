@@ -135,3 +135,7 @@ jobs:
             repo: context.repo.repo,
             body: output
           })
+
+  all-clear:
+    needs: terraform
+    name: "All checks passed"
