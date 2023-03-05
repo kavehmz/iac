@@ -54,6 +54,7 @@ jobs:
     steps:
     - uses: actions/checkout@v3
     - uses: hashicorp/setup-terraform@v2
+      working-directory: ${{ matrix.dir }}
 
     - name: Terraform fmt
       id: fmt
