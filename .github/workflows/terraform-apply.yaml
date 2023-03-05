@@ -48,7 +48,7 @@ jobs:
   terraform:
     if: ${{ github.event.review.state == 'approved' }}
     needs: diffs
-    name: "Terraform Plan without Approval"
+    name: "Terraform Apply"
     runs-on: ubuntu-latest
     permissions:
       pull-requests: write
