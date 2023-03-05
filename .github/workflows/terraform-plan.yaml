@@ -1,10 +1,6 @@
-name: 'Terraform'
+name: 'Terraform Plan'
 
 on:
-  pull_request_review:
-    types: [submitted]
-    paths:
-      - aws/**
   pull_request:
     paths:
       - aws/**
@@ -15,6 +11,7 @@ defaults:
 
 jobs:
   diffs:
+    name: "Check the changes"
     runs-on: ubuntu-latest
     outputs:
       matrix: ${{ steps.set-matrix.outputs.matrix }}
@@ -44,7 +41,7 @@ jobs:
 
   terraform:
     needs: diffs
-    name: "Terraform Plan without Approval"
+    name: "Check, Verify, Plan"
     runs-on: ubuntu-latest
     permissions:
       pull-requests: write
@@ -58,7 +55,7 @@ jobs:
     - name: Terraform fmt
       id: fmt
       working-directory: ${{ matrix.dir }}
-      run: terraform fmt -check
+      run: terraform fmt -check -diff -no-color
       continue-on-error: true
 
     - name: Terraform Init
@@ -84,16 +81,6 @@ jobs:
         AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID_READONLY }}
         AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY_READONLY }}
 
-    - name: Terraform Apply
-      if: github.event.review.state == 'approved' 
-      id: apply
-      working-directory: ${{ matrix.dir }}
-      run: terraform apply  -no-color -auto-approve
-      continue-on-error: true
-      env:
-        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-
     - uses: actions/github-script@v6
       if: ${{ github.event_name == 'pull_request' ||  github.event_name == 'pull_request_review' }}
       env:
@@ -103,8 +90,16 @@ jobs:
         github-token: ${{ secrets.GITHUB_TOKEN }}
         script: |
           const output = `### Dir: ${{ matrix.dir }}
-          #### Terraform Format and Style 🖌\`${{ steps.fmt.outcome }}\`
           #### Terraform Initialization ⚙️\`${{ steps.init.outcome }}\`
+          #### Terraform Format and Style 🖌\`${{ steps.fmt.outcome }}\`
+          <details><summary>Format Output</summary>
+
+          \`\`\`\n
+          ${{ steps.fmt.outputs.stdout }}
+          \`\`\`
+
+          </details>
+
           #### Terraform Validation 🤖\`${{ steps.validate.outcome }}\`
           <details><summary>Validation Output</summary>
 
