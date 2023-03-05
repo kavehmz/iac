@@ -4,6 +4,19 @@ inputs:
   working_dir:
     required: true
 
+defaults:
+  run:
+    shell: bash
+
+on:
+  pull_request_review:
+    types: [submitted]
+    paths:
+      - aws/**
+  pull_request:
+    paths:
+      - aws/**
+
 runs:
   using: "composite"
   steps:
