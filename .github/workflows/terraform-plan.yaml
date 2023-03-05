@@ -1,10 +1,6 @@
 name: 'Terraform Plan'
 
 on:
-  pull_request_review:
-    types: [submitted]
-    paths:
-      - aws/**
   pull_request:
     paths:
       - aws/**

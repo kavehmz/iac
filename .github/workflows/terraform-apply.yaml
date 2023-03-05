@@ -1,11 +1,15 @@
 name: 'Terraform Apply'
 
 on:
-  workflow_run:
-    workflows: ["Terraform Plan"]
-    branches: ["**"]
-    types:
-      - completed
+  pull_request_review:
+    types: [submitted]
+    paths:
+      - aws/**
+  # workflow_run:
+  #   workflows: ["Terraform Plan"]
+  #   branches: ["**"]
+  #   types:
+  #     - completed
 
 defaults:
   run:
@@ -13,7 +17,7 @@ defaults:
 
 jobs:
   diffs:
-    if: ${{ github.event.workflow_run.conclusion == 'success' && github.event_name == 'pull_request_review' }}
+    if: ${{ github.event.review.state == 'approved' }}
     runs-on: ubuntu-latest
     outputs:
       matrix: ${{ steps.set-matrix.outputs.matrix }}
@@ -42,7 +46,7 @@ jobs:
         echo "matrix={\"dir\":[$X]}" >> $GITHUB_OUTPUT
 
   terraform:
-    if: ${{ github.event.workflow_run.conclusion == 'success' && github.event_name == 'pull_request_review' }}
+    if: ${{ github.event.review.state == 'approved' }}
     needs: diffs
     name: "Terraform Plan without Approval"
     runs-on: ubuntu-latest
@@ -64,7 +68,7 @@ jobs:
         AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY_READONLY }}
 
     - name: Terraform Apply
-      if: github.event.review.state == 'approved' 
+      if: ${{ github.event.review.state == 'approved' }}
       id: apply
       working-directory: ${{ matrix.dir }}
       run: terraform apply  -no-color -auto-approve
@@ -74,7 +78,7 @@ jobs:
         AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
 
     - uses: actions/github-script@v6
-      if: ${{ github.event_name == 'pull_request' ||  github.event_name == 'pull_request_review' }}
+      if: ${{ github.event.review.state == 'approved' }}
       env:
         PLAN: "terraform\n${{ steps.plan.outputs.stdout }}"
         APPLY: "terraform\n${{ steps.apply.outputs.stdout }}"
