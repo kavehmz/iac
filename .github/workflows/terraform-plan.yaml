@@ -136,9 +136,9 @@ jobs:
             body: output
           })
 
-  all-clear:
+  plan-passed:
     needs: terraform
-    name: "All checks passed"
+    name: "Plan passed"
     runs-on: ubuntu-latest
 
     steps:
