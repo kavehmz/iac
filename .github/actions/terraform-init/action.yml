@@ -1,7 +1,7 @@
 name: Terraform inits
 description: Init terraform and check both fmt and validity.
 inputs:
-  working_dir:
+  working-dir:
     required: true
 
 defaults:
@@ -23,16 +23,16 @@ terraform-init:
   steps:
     - name: Terraform fmt
       id: fmt
-      working-directory: ${{ inputs.working_dir }}
+      working-directory: ${{ inputs.working-dir }}
       run: terraform fmt -check -diff -no-color
       continue-on-error: true
 
     - name: Terraform Init
       id: init
-      working-directory: ${{ inputs.working_dir }}
+      working-directory: ${{ inputs.working-dir }}
       run: terraform init
 
     - name: Terraform Validate
       id: validate
-      working-directory: ${{ inputs.working_dir }}
+      working-directory: ${{ inputs.working-dir }}
       run: terraform validate -no-color
