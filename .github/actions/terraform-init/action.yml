@@ -1,0 +1,27 @@
+name: Terraform inits
+description: Init terraform and check both fmt and validity.
+inputs:
+  working_dir:
+    required: true
+
+runs:
+  using: "composite"
+  steps:
+    - name: Terraform fmt
+      id: fmt
+      working-directory: ${{ working_dir }}
+      run: terraform fmt -check -diff -no-color
+      continue-on-error: true
+
+    - name: Terraform Init
+      id: init
+      working-directory: ${{ working_dir }}
+      run: terraform init
+      env:
+        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID_READONLY }}
+        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY_READONLY }}
+
+    - name: Terraform Validate
+      id: validate
+      working-directory: ${{ working_dir }}
+      run: terraform validate -no-color
