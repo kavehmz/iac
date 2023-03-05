@@ -139,3 +139,9 @@ jobs:
   all-clear:
     needs: terraform
     name: "All checks passed"
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: All done
+      id: plan-passed
+      run: echo "All passed"
