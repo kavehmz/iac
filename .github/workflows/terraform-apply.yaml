@@ -60,7 +60,7 @@ jobs:
     - name: Terraform Init
       id: init
       working-directory: ${{ matrix.dir }}
-      run: terraform init
+      run: terraform init -no-color
       env:
         AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID_READONLY }}
         AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY_READONLY }}
@@ -70,51 +70,29 @@ jobs:
       id: apply
       working-directory: ${{ matrix.dir }}
       run: terraform apply  -no-color -auto-approve
-      continue-on-error: true
       env:
         AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
         AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
 
     - uses: actions/github-script@v6
-      if: ${{ github.event.review.state == 'approved' }}
+      if: always()
       env:
-        PLAN: "terraform\n${{ steps.plan.outputs.stdout }}"
         APPLY: "terraform\n${{ steps.apply.outputs.stdout }}"
       with:
         github-token: ${{ secrets.GITHUB_TOKEN }}
         script: |
           const output = `### Dir: ${{ matrix.dir }}
           #### Terraform Initialization ⚙️\`${{ steps.init.outcome }}\`
-          #### Terraform Format and Style 🖌\`${{ steps.fmt.outcome }}\`
-          <details><summary>Format Output</summary>
+          <details><summary>Initialization Output</summary>
 
           \`\`\`\n
-          ${{ steps.fmt.outputs.stdout }}
-          \`\`\`
-
-          </details>
-
-          #### Terraform Validation 🤖\`${{ steps.validate.outcome }}\`
-          <details><summary>Validation Output</summary>
-
-          \`\`\`\n
-          ${{ steps.validate.outputs.stdout }}
-          \`\`\`
-
-          </details>
-
-          #### Terraform Plan 📖\`${{ steps.plan.outcome }}\`
-
-          <details><summary>Show Plan</summary>
-
-          \`\`\`\n
-          ${process.env.PLAN}
+          ${{ steps.init.outputs.stdout }}
+          ${{ steps.init.outputs.stderr }}
           \`\`\`
 
           </details>
 
           #### Terraform Apply 📖\`${{ steps.apply.outcome }}\`
-
           <details><summary>Show Apply</summary>
 
           \`\`\`\n
@@ -131,3 +109,13 @@ jobs:
             repo: context.repo.repo,
             body: output
           })
+
+  apply-passed:
+    needs: terraform
+    name: "Apply passed"
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: All done
+      id: apply-passed
+      run: echo "All passed"
