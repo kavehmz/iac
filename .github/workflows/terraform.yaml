@@ -30,7 +30,6 @@ jobs:
         do
           X="$X,\"$i\""
           echo  ${i}/backend.tf
-          ls -l  ${i}/
           cat << EOF > ${i}/backend.tf
           terraform {
             backend "s3" {
@@ -40,6 +39,7 @@ jobs:
             }
           }
         EOF
+        ls -l  ${i}/
         done
         X="${X:1}"
         echo "matrix={\"dir\":[$X]}" >> $GITHUB_OUTPUT
@@ -60,7 +60,9 @@ jobs:
     - name: Terraform fmt
       id: fmt
       working-directory: ${{ matrix.dir }}
-      run: terraform fmt -check -diff -no-color
+      run: |
+        ls -l
+        terraform fmt -check -diff -no-color
       continue-on-error: true
 
     - name: Terraform Init
