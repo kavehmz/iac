@@ -58,7 +58,7 @@ jobs:
     - name: Terraform fmt
       id: fmt
       working-directory: ${{ matrix.dir }}
-      run: terraform fmt -check
+      run: terraform fmt -check -diff -no-color
       continue-on-error: true
 
     - name: Terraform Init
@@ -103,8 +103,16 @@ jobs:
         github-token: ${{ secrets.GITHUB_TOKEN }}
         script: |
           const output = `### Dir: ${{ matrix.dir }}
-          #### Terraform Format and Style 🖌\`${{ steps.fmt.outcome }}\`
           #### Terraform Initialization ⚙️\`${{ steps.init.outcome }}\`
+          #### Terraform Format and Style 🖌\`${{ steps.fmt.outcome }}\`
+          <details><summary>Format Output</summary>
+
+          \`\`\`\n
+          ${{ steps.fmt.outputs.stdout }}
+          \`\`\`
+
+          </details>
+
           #### Terraform Validation 🤖\`${{ steps.validate.outcome }}\`
           <details><summary>Validation Output</summary>
 
