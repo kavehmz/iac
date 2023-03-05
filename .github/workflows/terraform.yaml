@@ -29,6 +29,8 @@ jobs:
         for i in $(git diff --dirstat=files,0 ..FETCH_HEAD|cut -d'%' -f 2|cut -d' ' -f 2|grep aws)
         do
           X="$X,\"$i\""
+          echo  ${i}/backend.tf
+          ls -l  ${i}/
           cat << EOF > ${i}/backend.tf
           terraform {
             backend "s3" {
