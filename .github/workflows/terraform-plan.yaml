@@ -52,19 +52,18 @@ jobs:
     - uses: actions/checkout@v3
     - uses: hashicorp/setup-terraform@v2
 
+    - name: Terraform Init
+      id: init
+      working-directory: ${{ matrix.dir }}
+      run: terraform init -no-color
+      env:
+        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID_READONLY }}
+        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY_READONLY }}
+
     - name: Terraform fmt
       id: fmt
       working-directory: ${{ matrix.dir }}
       run: terraform fmt -check -diff -no-color
-      continue-on-error: true
-
-    - name: Terraform Init
-      id: init
-      working-directory: ${{ matrix.dir }}
-      run: terraform init
-      env:
-        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID_READONLY }}
-        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY_READONLY }}
 
     - name: Terraform Validate
       id: validate
@@ -76,26 +75,34 @@ jobs:
       id: plan
       working-directory: ${{ matrix.dir }}
       run: terraform plan -no-color
-      continue-on-error: true
       env:
         AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID_READONLY }}
         AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY_READONLY }}
 
     - uses: actions/github-script@v6
-      if: ${{ github.event_name == 'pull_request' ||  github.event_name == 'pull_request_review' }}
+      if: always()
       env:
         PLAN: "terraform\n${{ steps.plan.outputs.stdout }}"
-        APPLY: "terraform\n${{ steps.apply.outputs.stdout }}"
       with:
         github-token: ${{ secrets.GITHUB_TOKEN }}
         script: |
           const output = `### Dir: ${{ matrix.dir }}
           #### Terraform Initialization ⚙️\`${{ steps.init.outcome }}\`
+          <details><summary>Initialization Output</summary>
+
+          \`\`\`\n
+          ${{ steps.init.outputs.stdout }}
+          ${{ steps.init.outputs.stderr }}
+          \`\`\`
+
+          </details>
+
           #### Terraform Format and Style 🖌\`${{ steps.fmt.outcome }}\`
           <details><summary>Format Output</summary>
 
           \`\`\`\n
           ${{ steps.fmt.outputs.stdout }}
+          ${{ steps.fmt.outputs.stderr }}
           \`\`\`
 
           </details>
@@ -105,6 +112,7 @@ jobs:
 
           \`\`\`\n
           ${{ steps.validate.outputs.stdout }}
+          ${{ steps.validate.outputs.stderr }}
           \`\`\`
 
           </details>
@@ -119,17 +127,7 @@ jobs:
 
           </details>
 
-          #### Terraform Apply 📖\`${{ steps.apply.outcome }}\`
-
-          <details><summary>Show Apply</summary>
-
-          \`\`\`\n
-          ${process.env.APPLY}
-          \`\`\`
-
-          </details>
-
-          *Pusher: @${{ github.actor }}, Action: \`${{ github.event_name }}\`, Working Directory: \`${{ env.tf_actions_working_dir }}\`, Workflow: \`${{ github.workflow }}\`*`;
+          *Pusher: @${{ github.actor }}, Action: \`${{ github.event_name }}\`, Workflow: \`${{ github.workflow }}\`*`;
 
           github.rest.issues.createComment({
             issue_number: context.issue.number,
@@ -137,3 +135,13 @@ jobs:
             repo: context.repo.repo,
             body: output
           })
+
+  plan-passed:
+    needs: terraform
+    name: "Plan passed"
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: All done
+      id: plan-passed
+      run: echo "All passed"
