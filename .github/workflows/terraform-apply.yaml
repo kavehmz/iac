@@ -5,11 +5,6 @@ on:
     types: [submitted]
     paths:
       - aws/**
-  # workflow_run:
-  #   workflows: ["Terraform Plan"]
-  #   branches: ["**"]
-  #   types:
-  #     - completed
 
 defaults:
   run:
