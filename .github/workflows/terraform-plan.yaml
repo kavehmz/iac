@@ -56,7 +56,6 @@ jobs:
       id: init
       working-directory: ${{ matrix.dir }}
       run: terraform init  -no-color
-      # continue-on-error: true
       env:
         AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID_READONLY }}
         AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY_READONLY }}
@@ -65,20 +64,17 @@ jobs:
       id: fmt
       working-directory: ${{ matrix.dir }}
       run: terraform fmt -check -diff -no-color
-      # continue-on-error: true
 
     - name: Terraform Validate
       id: validate
       working-directory: ${{ matrix.dir }}
       run: terraform validate -no-color
-      # continue-on-error: true
 
     - name: Terraform Plan
       if: github.event.review.state != 'approved' 
       id: plan
       working-directory: ${{ matrix.dir }}
       run: terraform plan -no-color
-      # continue-on-error: true
       env:
         AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID_READONLY }}
         AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY_READONLY }}
