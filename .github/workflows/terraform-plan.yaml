@@ -92,11 +92,21 @@ jobs:
         script: |
           const output = `### Dir: ${{ matrix.dir }}
           #### Terraform Initialization ⚙️\`${{ steps.init.outcome }}\`
+          <details><summary>Initialization Output</summary>
+
+          \`\`\`\n
+          ${{ steps.init.outputs.stdout }}
+          ${{ steps.init.outputs.stderr }}
+          \`\`\`
+
+          </details>
+
           #### Terraform Format and Style 🖌\`${{ steps.fmt.outcome }}\`
           <details><summary>Format Output</summary>
 
           \`\`\`\n
           ${{ steps.fmt.outputs.stdout }}
+          ${{ steps.fmt.outputs.stderr }}
           \`\`\`
 
           </details>
@@ -106,6 +116,7 @@ jobs:
 
           \`\`\`\n
           ${{ steps.validate.outputs.stdout }}
+          ${{ steps.validate.outputs.stderr }}
           \`\`\`
 
           </details>
