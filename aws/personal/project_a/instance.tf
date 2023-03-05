@@ -3,6 +3,6 @@ resource "aws_ebs_volume" "example" {
   sie               = 8
   availability_zone = "us-east-1a"
   tags = {
-      Name = "HelloWorld 01"
+    Name = "HelloWorld 01"
   }
 }
