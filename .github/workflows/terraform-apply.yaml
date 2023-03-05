@@ -12,6 +12,7 @@ defaults:
 
 jobs:
   diffs:
+    name: "Check the changes"
     if: ${{ github.event.review.state == 'approved' }}
     runs-on: ubuntu-latest
     environment: "playground-apply"
@@ -44,7 +45,7 @@ jobs:
   terraform:
     if: ${{ github.event.review.state == 'approved' }}
     needs: diffs
-    name: "Terraform Apply"
+    name: "Apply"
     runs-on: ubuntu-latest
     environment: "playground-apply"
     permissions:

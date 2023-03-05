@@ -11,6 +11,7 @@ defaults:
 
 jobs:
   diffs:
+    name: "Check the changes"
     runs-on: ubuntu-latest
     outputs:
       matrix: ${{ steps.set-matrix.outputs.matrix }}
@@ -40,7 +41,7 @@ jobs:
 
   terraform:
     needs: diffs
-    name: "Terraform Plan without Approval"
+    name: "Check, Verify, Plan"
     runs-on: ubuntu-latest
     permissions:
       pull-requests: write
