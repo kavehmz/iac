@@ -14,6 +14,7 @@ jobs:
   diffs:
     if: ${{ github.event.review.state == 'approved' }}
     runs-on: ubuntu-latest
+    environment: "playground-apply"
     outputs:
       matrix: ${{ steps.set-matrix.outputs.matrix }}
     steps:
@@ -45,6 +46,7 @@ jobs:
     needs: diffs
     name: "Terraform Apply"
     runs-on: ubuntu-latest
+    environment: "playground-apply"
     permissions:
       pull-requests: write
     strategy:
