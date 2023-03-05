@@ -29,7 +29,6 @@ jobs:
         for i in $(git diff --dirstat=files,0 ..FETCH_HEAD|cut -d'%' -f 2|cut -d' ' -f 2|grep aws)
         do
           X="$X,\"$i\""
-          echo  ${i}/backend.tf
           cat << EOF > ${i}/backend.tf
           terraform {
             backend "s3" {
@@ -39,7 +38,6 @@ jobs:
             }
           }
         EOF
-        ls -l  ${i}/
         done
         X="${X:1}"
         echo "matrix={\"dir\":[$X]}" >> $GITHUB_OUTPUT
@@ -60,9 +58,7 @@ jobs:
     - name: Terraform fmt
       id: fmt
       working-directory: ${{ matrix.dir }}
-      run: |
-        ls -l
-        terraform fmt -check -diff -no-color
+      run: terraform fmt -check -diff -no-color
       continue-on-error: true
 
     - name: Terraform Init
