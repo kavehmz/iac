@@ -97,18 +97,18 @@ jobs:
       id: apply
       working-directory: ${{ matrix.dir }}
       run: |
-      cat << EOF > backend.tf
-      terraform {
-        backend "s3" {
-          bucket = "deriv-playground-iac-states"
-          key    = "${{ matrix.dir }}"
-          region = "us-east-1"
+        cat << EOF > backend.tf
+        terraform {
+          backend "s3" {
+            bucket = "deriv-playground-iac-states"
+            key    = "${{ matrix.dir }}"
+            region = "us-east-1"
 
-          dynamodb_table = "terraform-s3-backend-locking"
+            dynamodb_table = "terraform-s3-backend-locking"
+          }
         }
-      }
-      EOF
-      terraform apply  -no-color -auto-approve
+        EOF
+        terraform apply  -no-color -auto-approve
       env:
         AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
         AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
