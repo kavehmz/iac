@@ -73,19 +73,11 @@ jobs:
         script: |
           const output = `### Dir: ${{ matrix.dir }}
           #### Terraform Plan 📖\`${{ steps.plan.outcome }}\`
-          <details><summary>Initialization Output</summary>
+          <details><summary>Init, Fmt, Verify, Plan Output</summary>
 
           \`\`\`\n
           ${{ steps.plan.outputs.stdout }}
           ${{ steps.plan.outputs.stderr }}
-          \`\`\`
-
-          </details>
-
-          <details><summary>Show Plan</summary>
-
-          \`\`\`\n
-          ${process.env.PLAN}
           \`\`\`
 
           </details>
