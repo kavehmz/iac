@@ -15,7 +15,6 @@ jobs:
     name: "Check the changes"
     if: ${{ github.event.review.state == 'approved' }}
     runs-on: ubuntu-latest
-    environment: "playground-apply"
     outputs:
       matrix: ${{ steps.set-matrix.outputs.matrix }}
     steps:
@@ -65,7 +64,6 @@ jobs:
         AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY_READONLY }}
 
     - name: Terraform Plan
-      if: github.event.review.state != 'approved'
       id: plan
       working-directory: ${{ matrix.dir }}
       run: terraform plan -no-color
