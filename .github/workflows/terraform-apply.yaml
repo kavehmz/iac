@@ -85,6 +85,7 @@ jobs:
     environment: "playground-apply"
     permissions:
       pull-requests: write
+      contents: read
     strategy:
       matrix: ${{fromJson(needs.diffs.outputs.matrix)}}
 

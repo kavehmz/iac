@@ -1,18 +1,17 @@
-# iac
+# iac-aws-playground
 
-This repository hold the template for creating a flexible iac pipeline using Github actions.
-All changes go to `/aws` directroy.
+This repository handles the CI/CD process and offers a flexible IaC pipeline using GitHub Actions.
+All changes go to `/aws` directory.
 
 # Backend
 
-There is no need to add the backned. Backend will be injected by the process automatically.
-This will hide management of backend and its location from users.
+There is no need to add the backend. The process will inject the required backend into your run automatically. This will hide the management of the backend and its location from users.
 
 # Environment variables
 The process depends on two sets of environment variables:
 
 ## Planning Stage Environment variables
-`AWS_ACCESS_KEY_ID_READONLY` and `AWS_SECRET_ACCESS_KEY_READONLY` are used for planning. Both need readonly access to resources in AWS and S3 bucket and write access to the DynamoDB table for locking mechanism.
+`AWS_ACCESS_KEY_ID_READONLY` and `AWS_SECRET_ACCESS_KEY_READONLY` are used for planning. This API key needs read-only access to AWS and S3 bucket resources and write access to the DynamoDB table for the locking mechanism.
 
 ### S3 Access
 
@@ -57,7 +56,7 @@ The process depends on two sets of environment variables:
 
 
 ## Apply Stage Environment variables
-`AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY` are used for applying the change. Both need write access to resources in AWS and S3 bucket and write access to the DynamoDB table for locking mechanism.
+`AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY` are used for applying the changes. This API key needs write access to resources in AWS and S3 bucket and write access to the DynamoDB table for the locking mechanism.
 
 ### S3 Access
 
@@ -101,13 +100,13 @@ The process depends on two sets of environment variables:
 ```
 
 # How to use the repo
-You need to create a pull request and aws your changes in a sub-directory under `aws` directory, e.x `aws/personal/project_a/`
+You need to create a pull request with your changes in a sub-directory under the `aws` directory, e.x, `aws/personal/project_a/`
 
-When you create a pull-request, planning jobs will run and results will be posted as a comment under the pull-request.
+When you create a pull request, planning jobs will run and post the results as a comment under the pull request.
 
 # Process overview
-1. Create a pull requests with your changes under a sub-directory in `aws`. Do not include the backend definition. Backend will be automatically injected by the process and state of your changes will be saved automatically.
-2. Watch the planning and check the results when they are ready. Results will be posted as a comment under your PR.
-3. Get review for your pull request. As soon as you get approval __Apply__ jobs will start
-4. __Apply__ jobs will wait for a last view and approval from those who have access to infrastrucutre change review. The list can be different from pull request reviewer.
-5. As soon as your deployment is approved, your chanes goes out and branch can be merged into master.
+1. Create a pull-requests with your changes under a sub-directory in `aws`. Do not include the backend definition. The process will automatically inject the backend and save the state of your changes.
+2. Watch the planning and check the results when they are ready. The jobs will post the result of runs as pull-requests comment
+3. Get a review for your pull request. As soon as you get approval __Apply__ jobs will start
+4. __Apply__ jobs will wait for `deployment approval`. Those with access to infrastructure change reviews can differ from the pull-request reviewers.
+5. As soon as your deployment is approved, your changes go out, and then you merge your branch into the master.

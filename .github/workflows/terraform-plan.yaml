@@ -33,6 +33,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       pull-requests: write
+      contents: read
     strategy:
       matrix: ${{fromJson(needs.diffs.outputs.matrix)}}
 
