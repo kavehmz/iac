@@ -75,7 +75,7 @@ jobs:
 
   terraform-apply:
     if: ${{ github.event.review.state == 'approved' }}
-    needs: [ "terraform-pre-apply-plan", "diff" ]
+    needs: [ "terraform-pre-apply-plan", "diffs" ]
     name: "Apply"
     runs-on: ubuntu-latest
     environment: "playground-apply"
@@ -133,12 +133,12 @@ jobs:
             body: output
           })
 
-  apply-passed:
-    needs: terraform-apply
-    name: "Apply passed"
-    runs-on: ubuntu-latest
+  # apply-passed:
+  #   needs: terraform-apply
+  #   name: "Apply passed"
+  #   runs-on: ubuntu-latest
 
-    steps:
-    - name: All done
-      id: apply-passed
-      run: echo "All passed"
+  #   steps:
+  #   - name: All done
+  #     id: apply-passed
+  #     run: echo "All passed"
