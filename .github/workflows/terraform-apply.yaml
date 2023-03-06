@@ -96,34 +96,35 @@ jobs:
       if: ${{ github.event.review.state == 'approved' }}
       id: apply
       working-directory: ${{ matrix.dir }}
-      run: terraform apply  -no-color -auto-approve
+      run: |
+      cat << EOF > backend.tf
+      terraform {
+        backend "s3" {
+          bucket = "deriv-playground-iac-states"
+          key    = "${{ matrix.dir }}"
+          region = "us-east-1"
+
+          dynamodb_table = "terraform-s3-backend-locking"
+        }
+      }
+      EOF
+      terraform apply  -no-color -auto-approve
       env:
         AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
         AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
 
     - uses: actions/github-script@v6
       if: always()
-      env:
-        APPLY: "terraform\n${{ steps.apply.outputs.stdout }}"
       with:
         github-token: ${{ secrets.GITHUB_TOKEN }}
         script: |
           const output = `### Dir: ${{ matrix.dir }}
-          #### Terraform Initialization ⚙️\`${{ steps.init.outcome }}\`
-          <details><summary>Initialization Output</summary>
+          #### Apply Outcome ⚙️\`${{ steps.init.outcome }}\`
+          <details><summary>Apply Output</summary>
 
           \`\`\`\n
           ${{ steps.init.outputs.stdout }}
           ${{ steps.init.outputs.stderr }}
-          \`\`\`
-
-          </details>
-
-          #### Terraform Apply 📖\`${{ steps.apply.outcome }}\`
-          <details><summary>Show Apply</summary>
-
-          \`\`\`\n
-          ${process.env.APPLY}
           \`\`\`
 
           </details>
