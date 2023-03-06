@@ -35,6 +35,8 @@ jobs:
               bucket = "deriv-playground-iac-states"
               key    = "${i}"
               region = "us-east-1"
+
+              dynamodb_table ="terraform-s3-backend-locking"
             }
           }
         EOF
