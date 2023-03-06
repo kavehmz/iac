@@ -136,7 +136,7 @@ jobs:
           })
 
   apply-passed:
-    needs: terraform
+    needs: terraform-apply
     name: "Apply passed"
     runs-on: ubuntu-latest
 
