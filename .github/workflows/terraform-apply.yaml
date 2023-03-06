@@ -75,7 +75,7 @@ jobs:
 
   terraform-apply:
     if: ${{ github.event.review.state == 'approved' }}
-    needs: terraform-pre-apply-plan
+    needs: [ "terraform-pre-apply-plan", "diff" ]
     name: "Apply"
     runs-on: ubuntu-latest
     environment: "playground-apply"
