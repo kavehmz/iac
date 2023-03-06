@@ -108,6 +108,7 @@ jobs:
           }
         }
         EOF
+        terraform init -no-color
         terraform apply  -no-color -auto-approve
       env:
         AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
