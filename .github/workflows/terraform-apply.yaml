@@ -55,22 +55,26 @@ jobs:
     - uses: actions/checkout@v3
     - uses: hashicorp/setup-terraform@v2
 
-    - name: Terraform Init
-      id: init
-      working-directory: ${{ matrix.dir }}
-      run: terraform init -no-color
-      env:
-        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID_READONLY }}
-        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY_READONLY }}
-
     - name: Terraform Plan
       id: plan
       working-directory: ${{ matrix.dir }}
-      run: terraform plan -no-color
+      run: |
+        cat << EOF > backend.tf
+        terraform {
+          backend "s3" {
+            bucket = "deriv-playground-iac-states"
+            key    = "${{ matrix.dir }}"
+            region = "us-east-1"
+
+            dynamodb_table = "terraform-s3-backend-locking"
+          }
+        }
+        EOF
+        terraform init -no-color
+        terraform plan -no-color
       env:
         AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID_READONLY }}
         AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY_READONLY }}
-
 
 
   terraform-apply:

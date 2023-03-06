@@ -55,7 +55,6 @@ jobs:
           }
         }
         EOF
-        ls -l 
         terraform init -no-color
         terraform fmt -check -diff -no-color
         terraform validate -no-color
