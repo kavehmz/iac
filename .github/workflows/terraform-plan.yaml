@@ -51,7 +51,7 @@ jobs:
             key    = "${{ matrix.dir }}"
             region = "us-east-1"
 
-            dynamodb_table ="terraform-s3-backend-locking"
+            dynamodb_table = "terraform-s3-backend-locking"
           }
         }
         EOF
