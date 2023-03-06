@@ -44,14 +44,11 @@ jobs:
         X="${X:1}"
         echo "matrix={\"dir\":[$X]}" >> $GITHUB_OUTPUT
 
-  terraform:
+  terraform-pre-apply-plan:
     if: ${{ github.event.review.state == 'approved' }}
     needs: diffs
-    name: "Apply"
+    name: "PreApply Plan"
     runs-on: ubuntu-latest
-    environment: "playground-apply"
-    permissions:
-      pull-requests: write
     strategy:
       matrix: ${{fromJson(needs.diffs.outputs.matrix)}}
 
@@ -66,6 +63,32 @@ jobs:
       env:
         AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID_READONLY }}
         AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY_READONLY }}
+
+    - name: Terraform Plan
+      if: github.event.review.state != 'approved'
+      id: plan
+      working-directory: ${{ matrix.dir }}
+      run: terraform plan -no-color
+      env:
+        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID_READONLY }}
+        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY_READONLY }}
+
+
+
+  terraform-apply:
+    if: ${{ github.event.review.state == 'approved' }}
+    needs: terraform-pre-apply-plan
+    name: "Apply"
+    runs-on: ubuntu-latest
+    environment: "playground-apply"
+    permissions:
+      pull-requests: write
+    strategy:
+      matrix: ${{fromJson(needs.diffs.outputs.matrix)}}
+
+    steps:
+    - uses: actions/checkout@v3
+    - uses: hashicorp/setup-terraform@v2
 
     - name: Terraform Apply
       if: ${{ github.event.review.state == 'approved' }}
